@@ -13,6 +13,11 @@ public_key_file = open('publicKey', 'rb')
 public_key = pickle.load(public_key_file)
 public_key_file.close()
 
+#load PRIVATE_KEY
+private_key_file = open('privateKey', 'rb')
+private_key = pickle.load(private_key_file)
+private_key_file.close()
+
 client = MongoClient('mongodb://20.198.81.2:27017/')
 mydb = client['attendance_db']
 rollnum_table = mydb["rollnum"]
@@ -111,17 +116,17 @@ def check_similarity(enc_fp,rollnum_list,enc_data_list):
 		candidate  = [enci+elem for elem in enc_fp_obj]
 		candidate = [elem.ciphertext(False) for elem in candidate]
 		for j in enc_data_list:
-			print(j," - ",candidate)
+			print(i,"\n",j," - ",candidate)
 			if eq_check(j,candidate,0.8):
 				return True,i
-		return False, None
+	return False, None
 
 class create_entry(Resource):
 	def post(self):
 		roll_num = request.form['rollnum']		
 		enc_fproll = request.form['enc_fproll']
 		print(roll_num)
-		print(enc_fproll)
+		#print(enc_fproll)
 		status = create_db_entry(roll_num,enc_fproll)
 		return {'status': status}
 
@@ -132,8 +137,8 @@ class verify(Resource):
 		enc_fp = [int(i) for i in enc_fp]
 		verify_date = request.form['verify_date']
 		verify_time = request.form['verify_time']
-		print(enc_fp)
-		print(verify_date," ",verify_time)
+		#print(enc_fp)
+		#print(verify_date," ",verify_time)
 		rollnum_list = get_all_rollnum()
 		if rollnum_list  == False:
 			return {'status': False}
@@ -141,8 +146,8 @@ class verify(Resource):
 		if rollnum_list == False:
 			return {'status': False}
 		print("Rollnumlist: ",rollnum_list)
-		print("encdata_list: ",enc_data_list)
-		print("enc_fp: ",enc_fp)
+		#print("encdata_list: ",enc_data_list)
+		#print("enc_fp: ",enc_fp)
 		status, rollnum = check_similarity(enc_fp,rollnum_list,enc_data_list)
 		if status:
 			attended(rollnum,verify_date,verify_time)
