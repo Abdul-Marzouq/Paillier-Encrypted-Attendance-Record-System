@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+	<head>
+		<title>
+			Girls Hostel Attendance Records
+		</title>
+	</head>
+	<body>
+		<form action = "http://localhost:5000/" method = "POST">
+			<label for="rnum">Roll Number:</label><br>
+			<input type="text" id="rnum" name="rnum"><br><br>
+			<label for="attnd_date">Date:</label><br>
+			<input type="date" id="attnd_date" name="attnd_date"<br><br><br>
+			<input type="submit" value="Submit">
+		</form>
+
+		<br><br><br><br>
+
+		<table border = 1>
+			<tr>
+				<th>Roll Number </th>
+				<th>Date </th>
+				<th>Time </th>
+			</tr>
+			{% for entry in att_dict_list %}
+		  	<tr>
+		  		{% for key, value in entry.items() %}
+		  			<td> {{ value }} </td>
+		  		{% endfor %}
+		  	</tr>
+		  	{% endfor %}
+		  
+		</table>
+	</body>
+</html>
