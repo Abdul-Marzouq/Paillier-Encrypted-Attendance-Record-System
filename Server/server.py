@@ -1,12 +1,13 @@
 from pymongo import MongoClient
 from phe import paillier
-from flask import Flask, request, render_template, redirect
+from flask import Flask, request, render_template
 import pickle
 from flask_restful import Resource, Api
-from flask_wtf import FlaskForm
 
 app = Flask(__name__)
 api = Api(app)
+
+THRESHOLD = 0.8
 
 #load PUBLIC_KEY
 public_key_file = open('publicKey', 'rb')
@@ -32,12 +33,12 @@ def delete_all():
 	rollnum_table.delete_many({})
 	return render_template('/viewtable.html',att_dict_list=[])
 
-def eq_check(list1,list2,threshold):
+def eq_check(list1,list2,threshold=THRESHOLD):
 	cnt = 0
 	for i in range(len(list1)):
 		if list1[i] == list2[i]:
 			cnt = cnt + 1
-	if cnt>int(threshold*len(list1)):
+	if cnt>=int(threshold*len(list1)):
 		return True
 	else:
 		return False
@@ -117,7 +118,7 @@ def check_similarity(enc_fp,rollnum_list,enc_data_list):
 		candidate = [elem.ciphertext(False) for elem in candidate]
 		for j in enc_data_list:
 			print(i,"\n",j," - ",candidate)
-			if eq_check(j,candidate,0.8):
+			if eq_check(j,candidate):
 				return True,i
 	return False, None
 
@@ -169,8 +170,6 @@ def view_attendance():
 	else:
 		att_dict_list = []#get_attendance_record()
 		return render_template('/viewtable.html',att_dict_list=att_dict_list)
-
-
 
 
 api.add_resource(create_entry, '/create')
