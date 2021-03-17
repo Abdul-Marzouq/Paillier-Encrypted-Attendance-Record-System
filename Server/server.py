@@ -12,12 +12,12 @@ api = Api(app)
 public_key_file = open('publicKey', 'rb')
 public_key = pickle.load(public_key_file)
 public_key_file.close()
-
+"""
 #load PRIVATE_KEY
 private_key_file = open('privateKey', 'rb')
 private_key = pickle.load(private_key_file)
 private_key_file.close()
-
+"""
 client = MongoClient('mongodb://20.198.81.2:27017/')
 mydb = client['attendance_db']
 rollnum_table = mydb["rollnum"]
