@@ -4,10 +4,7 @@ import pickle
 from tqdm import tqdm
 from datetime import datetime
 
-
-
-MAX_FINGER_PRINT_LENGTH = 25
-
+MAX_FINGER_PRINT_LENGTH = 250
 #load PUBLIC_KEY
 public_key_file = open('publicKey', 'rb')
 PUBLIC_KEY = pickle.load(public_key_file)
@@ -20,10 +17,11 @@ private_key_file.close()
 
 R = 999
 
-CREATE_URL = 'http://127.0.0.1:5000/create'
-VERIFY_URL = 'http://127.0.0.1:5000/verify'
+CREATE_URL = 'http://20.198.81.2:5000/create'
+VERIFY_URL = 'http://20.198.81.2:5000/verify'
 
-NOISE_RATIO = 0.02
+NOISE_RATIO = 0.1
+BLOCK_SIZE = 5
 
 def str_to_bin(string):
 	return ''.join(format(ord(c),'08b') for c in string).replace('b','')
@@ -31,22 +29,37 @@ def str_to_bin(string):
 def str_to_int(string):
 	return int(str_to_bin(string),2)
 
-def add_noise(finger_print, noise_ratio = NOISE_RATIO):
+def change_num_list(fp_array,block_size=BLOCK_SIZE):
+	while len(fp_array)%block_size!=0:
+		fp_array.append(0)
+	fin_array = []
+	for i in range(0,len(fp_array),block_size):
+		bin_array = []
+		for k in range(block_size):
+			bin_array.append(str_to_bin(chr(fp_array[i+k])))
+		bin_array = "".join(bin_array)
+		fin_array.append(int(bin_array,2))
+	return fin_array
+
+def add_noise(finger_print, noise_ratio = NOISE_RATIO,block_size=BLOCK_SIZE):
 	fp_array = [str_to_int(char) for char in finger_print]
 
 	l = len(fp_array)
-	l_noise = int(len(fp_array) * noise_ratio)
+	l_noise = int(len(fp_array) * (noise_ratio/block_size))
 	indices = random.sample(range(0,l), l_noise)
 
 	for idx in indices:
-		fp_array[idx] = chr(random.randint(0,127))
-
+		fp_array[idx] = random.randint(33,126)
+	print("".join([chr(ch) for ch in fp_array]))
+	fp_array = change_num_list(fp_array)
 	return fp_array
 
 def register_user(roll_no, finger_print):
 	
 	#convert finger_print to list of intergers
 	fp_array = [str_to_int(char) for char in finger_print]
+	fp_array = change_num_list(fp_array)
+	#print(fp_array)
 
 	enc_roll_no = PUBLIC_KEY.encrypt(str_to_int(roll_no),r_value=R)
 
@@ -66,6 +79,7 @@ def register_user(roll_no, finger_print):
 
 	return
 
+
 def mark_attendance(fp_array):
 
 	loop = tqdm(fp_array, 
@@ -82,7 +96,7 @@ def mark_attendance(fp_array):
 	data = {'enc_fp' : enc_fp_array,
 			'verify_date': dt_str,
 			'verify_time' : tim_str}
-
+	#print(enc_fp_array)
 	r = requests.post(VERIFY_URL, data = data)
 	print(r.text)
 
@@ -106,7 +120,9 @@ if __name__ == '__main__':
 
 		elif(choice == '2'):
 			finger_print = input('ENTER FINGER PRINT: ')
+			#print("Before Adding Noise: ",fp_array)
 			fp_array = add_noise(finger_print)
+			print("After Adding Noise: ",fp_array)
 			mark_attendance(fp_array)
 
 		elif(choice == '3'):
