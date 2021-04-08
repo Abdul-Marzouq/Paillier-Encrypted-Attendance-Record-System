@@ -7,7 +7,7 @@ from flask_restful import Resource, Api
 app = Flask(__name__)
 api = Api(app)
 
-THRESHOLD = 0.8
+THRESHOLD = 0.9
 
 #load PUBLIC_KEY
 public_key_file = open('publicKey', 'rb')
@@ -176,4 +176,4 @@ api.add_resource(create_entry, '/create')
 api.add_resource(verify, '/verify')
 			
 if __name__ == '__main__':
-	app.run(debug = True)
+	app.run(debug = True,host='0.0.0.0')

@@ -17,8 +17,8 @@ private_key_file.close()
 
 R = 999
 
-CREATE_URL = 'http://20.198.81.2:5000/create'
-VERIFY_URL = 'http://20.198.81.2:5000/verify'
+CREATE_URL = 'http://20.193.224.100:5000/create'
+VERIFY_URL = 'http://20.193.224.100:5000/verify'
 
 NOISE_RATIO = 0.1
 BLOCK_SIZE = 5
